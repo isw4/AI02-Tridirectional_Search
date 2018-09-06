@@ -9,6 +9,7 @@ import networkx
 from explorable_graph import ExplorableGraph
 from search_submission import PriorityQueue, a_star, bidirectional_a_star, \
     bidirectional_ucs, breadth_first_search, uniform_cost_search
+from search_submission import three_bidirectional_search, tridirectional_upgraded, custom_heuristic
 from visualize_graph import plot_search
 
 
@@ -142,6 +143,37 @@ class TestBidirectionalSearch(unittest.TestCase):
         all_explored = self.atlanta.explored_nodes
         plot_search(self.atlanta, 'atlanta_search_bidir_a_star.json', path,
                     all_explored)
+
+
+class TestTrivsBiSearch(unittest.TestCase):
+    """Test the tridirectional search algorithm vs three-bidirectional search algorithm for custom heuristic"""
+    def setUp(self):
+        """Load grid data"""
+        map = networkx.read_gpickle('grid.gpickle')
+
+        self.map = ExplorableGraph(map)
+        self.map.reset_search()
+
+        self.coordinates = [(0,0), (51,51), (150,150)]
+
+    def test_three_bidirectional_search(self):
+        """Test for 3 bidirectional A* search"""
+        path = three_bidirectional_search(self.map, self.coordinates, heuristic=custom_heuristic)
+        all_explored = self.map.explored_nodes
+        print("Three bidirectional A-star with Heuristic ")
+        print("Number explored: %d" % len(all_explored))
+        print("Path length: %d" % len(path))
+        print
+
+    def test_tridirectional_upgraded(self):
+        """Test for tridirectional A* search"""
+        path = tridirectional_upgraded(self.map, self.coordinates, heuristic=custom_heuristic)
+        all_explored = self.map.explored_nodes
+        print("Tridirectional A-Star with Heuristic")
+        print("Number explored: %d" % len(all_explored))
+        print("Path length: %d" % len(path))
+        print
+
 
 
 if __name__ == '__main__':

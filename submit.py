@@ -39,7 +39,7 @@ def main():
     filenames = ["search_submission.py"]
     require_pledges()
 
-    submit('cs6601', 'assignment_2', filenames)
+    submit('cs6601', 'assignment_2e', filenames)
 
 
 if __name__ == '__main__':
