@@ -289,7 +289,7 @@ def tridirectional_search(graph, goals):
 
 def tridirectional_upgraded(graph, goals, heuristic=euclidean_dist_heuristic):
     """
-    Exercise 3: Upgraded Tridirectional Search
+    Exercise 4: Upgraded Tridirectional Search
 
     See README.MD for exercise description.
 
@@ -304,45 +304,6 @@ def tridirectional_upgraded(graph, goals, heuristic=euclidean_dist_heuristic):
         the other goal nodes).
     """
     # TODO: finish this function
-    raise NotImplementedError
-
-
-def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic):
-    """
-    Exercise 4: Three Bidirectional Searches
-
-    See README.MD for exercise description
-
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        goals (list): Key values for the 3 goals
-        heuristic: Function to determine distance heuristic.
-            Default: euclidean_dist_heuristic.
-
-    Returns:
-        The best path as a list from one of the goal nodes (including both of
-        the other goal nodes).
-    """
-    # TODO: finish this function
-    raise NotImplementedError
-
-
-def custom_heuristic(graph, v, goal):
-    """
-       Exercise 4: Custom Heuristic for testing Tridirectional vs 3 Bidirectional Searches
-
-       See README.md for exercise description.
-
-       Args:
-           graph (ExplorableGraph): Undirected graph to search.
-           v (str): Key for the node to calculate from.
-           goal (str): Key for the end node to calculate to.
-
-       Returns:
-           Custom heuristic distance between `v` node and `goal` node
-       """
-
-    # TODO: finish this function!
     raise NotImplementedError
 
 
@@ -390,3 +351,40 @@ def load_data():
     pickle_file_path = os.path.join(dir_name, "data.pickle")
     data = pickle.load(open(pickle_file_path, 'rb'))
     return data
+
+
+def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic):
+    """
+    Exercise 5: Use this to test out your implementation for Three Bidirectional Searches to help you with the report.
+
+    See README.MD for exercise description
+
+    Args:
+        graph (ExplorableGraph): Undirected graph to search.
+        goals (list): Key values for the 3 goals
+        heuristic: Function to determine distance heuristic.
+            Default: euclidean_dist_heuristic.
+
+    Returns:
+        The best path as a list from one of the goal nodes (including both of
+        the other goal nodes).
+    """
+    pass
+
+
+def custom_heuristic(graph, v, goal):
+    """
+       Exercise 5: Use this to test out any custom heuristic for comparing Tridirectional vs 3 Bidirectional Searches for the report.
+
+       See README.md for exercise description.
+
+       Args:
+           graph (ExplorableGraph): Undirected graph to search.
+           v (str): Key for the node to calculate from.
+           goal (str): Key for the end node to calculate to.
+
+       Returns:
+           Custom heuristic distance between `v` node and `goal` node
+       """
+
+    pass

@@ -208,7 +208,7 @@ search challenge question on Udacity.
 
 #### Exercise 4: Upgraded Tridirectional search
 
-_[15 points]_
+_[10 points]_
 
 This is the heart of the assignment. Implement tridirectional search in such a way as to consistently improve on the
 performance of your previous implementation. This means consistently exploring fewer nodes during your search in order
@@ -227,6 +227,19 @@ The specifics are up to you, but we have a few suggestions:
 > 2. If any two goals are the same then just return [] as the path between them
 > 3. We will provide some margin of error in grading the size of your 'Explored' set, but it should be close to the
      results provided by our reference implementation.
+     
+     
+#### Exercise 5: Comparing Tridirectional search vs 3 Bidirectional Searches
+
+_[5 points]_
+
+Implement 3 bidirectional searches in `three_bidirectional_search()` using your previous implementation of bidirectional UCS or A-star. You're also welcome to use the `custom_heuristic()` method to help you compare this with tridirectional search for other heuristics.
+
+The file `search_submission_tests_grid.py` has been provided to help you visualize your paths, explored nodes and expansion of child nodes.
+
+> **Notes**:
+> 1. The two functions `three_bidirectional_search()` and `custom_heuristic()` are not mandatory. They are provided just for you to test your hypotheses.
+
      
 #### Final Task: Return your name
 _[1 point]_
