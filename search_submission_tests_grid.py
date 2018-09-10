@@ -81,7 +81,7 @@ class TestSearchExperimental(unittest.TestCase):
         file_name = 'grid.gpickle'
 
         # Use this function to create any custom grid
-        create_grid(20, file_name=file_name)
+        # create_grid(20, file_name=file_name)
         self.original_grid = pickle.load(open(file_name, 'rb'))
 
         self.grid = ExplorableGraph(self.original_grid)
