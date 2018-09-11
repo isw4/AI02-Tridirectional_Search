@@ -233,12 +233,40 @@ The specifics are up to you, but we have a few suggestions:
 
 _[5 points]_
 
-Implement 3 bidirectional searches in `three_bidirectional_search()` using your previous implementation of bidirectional UCS or A-star. You're also welcome to use the `custom_heuristic()` method to help you compare this with tridirectional search for other heuristics.
+Implement three bidirectional searches in `three_bidirectional_search()` using your previous implementation of bidirectional UCS or A-star. 
 
-The file `search_submission_tests_grid.py` has been provided to help you visualize your paths, explored nodes and expansion of child nodes.
+After you implement the `three_bidirectional_search()` algorithm, it’s time to step back and compare how this and your `tridirectional_search()` algorithm work. Theoretically, tridirectional search _should_ outperform three bidirectional searches- the tridirectional search shares more information after all.
+
+However, this is still an open research question. _Are there cases where three bidirectional searches outperform one tridirectional search, and, if so, how do we detect them?_ We’re interested in **non-trivial cases** - think cases where the optimal path covers **more than 100 nodes**. These rules should, ideally, generalize to real world maps.
+
+For this write-up, consider both the Uniform Cost heuristic and A* search. For each of these, ask the question “Under what conditions (properties of the graph being explored, different A* heuristics) would three bidirectional outperform one tridirectional?” Without running the algorithm on a graph, but knowing the starting points, can you determine which algorithm will run better? We’re not interested right now whether it would be faster to just run the search algorithm instead of the check you invented, so your check doesn’t have to asymptotically faster than the search algorithm.
+
+Try to formulate a hypothesis stating the conditions (or some conditions, it doesn’t have to perfectly bisect the two) under which three bidirectional will outperform tridirectional. Then, back this up with some evidence. Run some tests and give some examples that back up your hypothesis.
+
 
 > **Notes**:
-> 1. The two functions `three_bidirectional_search()` and `custom_heuristic()` are not mandatory. They are provided just for you to test your hypotheses.
+
+> 1. Your hypothesis may be that tridirectional always outperforms bidirectional. Feel free to make that argument, but back it up with solid reasoning if you choose to do so.
+
+> 2. Performance here is not just about the number of nodes expanded. The three bidirectional search will, after all, expand nodes multiple times. So if you only look at how many nodes were ever expanded, you’ll miss the overlapping nodes that were expanded multiple times. Instead, look at the total number of times nodes were expanded.
+
+> 3. A grid graph (grid.gpickle) and a visualization tool (search_submission_tests_grid.py) are provided in the assignment repository to test your ideas and visualize the difference in explored nodes between bidirectional and tridirectional algorithms.
+
+> 4. You're also welcome to use the optional `custom_heuristic()` method to help you compare this with tridirectional search for other heuristics.
+
+
+**In summary, submit a one-page pdf on canvas with the following:**
+
+1) For the uniform cost heuristic
+    * Describe the conditions under which three bidirectional searches will outperform tridirectional search.
+    * Provide examples and evidence to support this.
+
+2) For A* search:
+    * Describe the conditions under which three bidirectional searches will outperform tridirectional search.
+    * Provide examples and evidence to support this.
+
+
+
 
      
 #### Final Task: Return your name
