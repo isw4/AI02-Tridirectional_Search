@@ -1,4 +1,6 @@
-# CS 6601: Artificial Intelligence - Assignment 2 - Search
+# CS 6601: Artificial Intelligence - Assignment 2 - Search - On-campus students
+
+**Warning: this repo is for on-campus students only. The link to the repo for online students is available on Canvas.**
 
 ## Setup
 
@@ -27,6 +29,8 @@ You are allowed **two submissions every thirty minutes**.
 This assignment is due on Bonnie and Canvas on September 23th, 2018 by 11:59PM UTC-12 (Anywhere on Earth). The deliverables for the assignment are:
 
 • All functions completed in `search_submission.py`
+
+• One-page report named `report-{GT username}.pdf` to be submitted on canvas. Example: "report-jdoe3.pdf" if your GT username is "jdoe3".
 
 **Only the final submission will be used for grading purposes. We cannot use your "best" submission out of all submissions.**
 
@@ -69,11 +73,7 @@ Links from Udacity, below the videos:
 * [Reach-based Routing: A New Approach to Shortest Path Algorithms Optimized for Road Networks](http://www.cc.gatech.edu/~thad/6601-gradAI-fall2015/02-search-Gutman04siam.pdf)
 
 ### Relevant Challenge Questions
-Challenge Question 4 - Search on Grid [ https://piazza.com/class/jc6w44hrp9v2ki?cid=321 ]  
-Challenge Question 5 - Word Morphing [ https://piazza.com/class/jc6w44hrp9v2ki?cid=387 ]  
-Challenge Question 6 - Puzzle 8 & Rubik's Cube [ https://piazza.com/class/jc6w44hrp9v2ki?cid=389 ]
-
-_Others will be updated as they are added._
+_Questions will be updated as they are added._
 
 ### Other Resources
 [Introduction to A*](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
@@ -97,7 +97,7 @@ In all searches that involve calculating path cost or heuristic (e.g. uniform-co
 To show this, you'll implement a priority queue and demonstrate its performance benefits. For large graphs, sorting all input to a priority queue is impractical. As such, the data structure you implement should have an amortized O(1) insertion and O(lg n) removal time. It should do better than the naive implementation in our tests (InsertionSortQueue), which sorts the entire list after every insertion.
 
 > Hint:
-> The heapq module has been imported for you.
+> The heapq module has been imported for you. Feel free to use it
 > Each edge has an associated weight.
 
 #### Warmup 2: BFS
@@ -153,12 +153,11 @@ The following exercises will require you to implement several kinds of bidirecti
 
 For these exercises, we recommend you take a look at the following resources.
 
-1. [A Star meets Graph Theory](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/A%20Star%20meets%20Graph%20Theory.pdf)
-2. [Applications of Search](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/Applications%20of%20Search.pdf)
-3. [Bi Directional A Star - Slides](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/Bi%20Directional%20A%20Star%20-%20Slides.pdf)
-4. [Bi Directional A Star with Additive Approx Bounds](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/Bi%20Directional%20A%20Star%20with%20Additive%20Approx%20Bounds.pdf)
-5. [Bi Directional A Star](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/Bi%20Directional%20A%20Star.pdf)
-6. [Search Algorithms Slide Deck](https://github.gatech.edu/omscs6601/assignment_2/raw/master/resources/Search%20Algorithms%20Slide%20Deck.pdf)
+1. [A Star meets Graph Theory](https://github.gatech.edu/omscs6601/assignment_2_online/raw/master/resources/A%20Star%20meets%20Graph%20Theory.pdf)
+2. [Bi Directional A Star - Slides](https://github.gatech.edu/omscs6601/assignment_2_online/raw/master/resources/Bi%20Directional%20A%20Star%20-%20Slides.pdf)
+3. [Bi Directional A Star with Additive Approx Bounds](https://github.gatech.edu/omscs6601/assignment_2_online/raw/master/resources/Bi%20Directional%20A%20Star%20with%20Additive%20Approx%20Bounds.pdf)
+4. [Bi Directional A Star](https://github.gatech.edu/omscs6601/assignment_2_online/raw/master/resources/Bi%20Directional%20A%20Star.pdf)
+5. [Search Algorithms Slide Deck](https://github.gatech.edu/omscs6601/assignment_2_online/raw/master/resources/Search%20Algorithms%20Slide%20Deck.pdf)
 
 #### Exercise 1: Bidirectional uniform-cost search
 
