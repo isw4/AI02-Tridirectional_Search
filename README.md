@@ -236,11 +236,11 @@ Implement three bidirectional searches in `three_bidirectional_search()` using y
 
 After you implement the `three_bidirectional_search()` algorithm, it’s time to step back and compare how this and your `tridirectional_search()` algorithm work. Theoretically, tridirectional search _should_ outperform three bidirectional searches- the tridirectional search shares more information after all.
 
-However, this is still an open research question. _Are there cases where three bidirectional searches outperform one tridirectional search, and, if so, how do we detect them?_ We’re interested in **non-trivial cases** - think cases where the optimal path covers **more than 100 nodes**. These rules should, ideally, generalize to real world maps.
+However, this is still an open research question. _Are there cases where three bidirectional searches outperform one tridirectional search, and, if so, how do we detect them?_ These rules should, ideally, generalize to real world maps.
 
 For this write-up, consider both the Uniform Cost heuristic and A* search. For each of these, ask the question “Under what conditions (properties of the graph being explored, different A* heuristics) would three bidirectional outperform one tridirectional?” Without running the algorithm on a graph, but knowing the starting points, can you determine which algorithm will run better? We’re not interested right now whether it would be faster to just run the search algorithm instead of the check you invented, so your check doesn’t have to asymptotically faster than the search algorithm.
 
-Try to formulate a hypothesis stating the conditions (or some conditions, it doesn’t have to perfectly bisect the two) under which three bidirectional will outperform tridirectional. Then, back this up with some evidence. Run some tests and give some examples that back up your hypothesis.
+Try to formulate a hypothesis stating the conditions under which three bidirectional will outperform tridirectional. It doesn’t have to perfectly predict which will do better, but it should have some predictive power. Then, back this up with some evidence. Run some tests and give some examples that back up your hypothesis.
 
 
 > **Notes**:
@@ -254,7 +254,7 @@ Try to formulate a hypothesis stating the conditions (or some conditions, it doe
 > 4. You're also welcome to use the optional `custom_heuristic()` method to help you compare this with tridirectional search for other heuristics.
 
 
-**In summary, submit a one-page pdf on canvas with the following:**
+**In summary, submit a pdf on canvas with the following:**
 
 1) For the uniform cost heuristic
     * Describe the conditions under which three bidirectional searches will outperform tridirectional search.
@@ -264,7 +264,7 @@ Try to formulate a hypothesis stating the conditions (or some conditions, it doe
     * Describe the conditions under which three bidirectional searches will outperform tridirectional search.
     * Provide examples and evidence to support this.
 
-
+_(Try to keep your word count to something that would fit on a single page. Feel free to add pictures on top of this one page limit.)_
 
 
      
