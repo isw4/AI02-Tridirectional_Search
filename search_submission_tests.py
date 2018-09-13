@@ -56,6 +56,12 @@ class TestBasicSearch(unittest.TestCase):
         self.draw_graph(self.romania, node_positions=node_positions,
                         start=start, goal=goal, path=path)
 
+    def test_bfs_empty_path(self):
+        start = "a"
+        goal = "a"
+        path = breadth_first_search(self.romania, start, goal)
+        self.assertEqual(path, [])
+
     def test_ucs(self):
         """TTest and visualize uniform-cost search"""
         start = 'a'
