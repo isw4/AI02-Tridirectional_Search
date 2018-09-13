@@ -13,6 +13,20 @@ from search_submission import a_star, bidirectional_a_star, \
     uniform_cost_search
 
 
+def is_valid(graph, path, start, goal):
+    """
+    Test whether a path is valid or not
+    """
+    if start == goal:
+        return path == []
+    else:
+        if path[0] != start or path[-1] != goal:
+            return False
+    for i in range(len(path) -1):
+        if path[i + 1] not in graph.neighbors(path[i]):
+            return False
+    return True
+
 class SearchUnitTests(unittest.TestCase):
     """
     Error Diagnostic code courtesy one of our former students -  Mac Chan
@@ -314,7 +328,18 @@ class SearchUnitTests(unittest.TestCase):
     def test_bfs_romania(self):
         """Test breadth first search with Romania data."""
 
-        self.run_romania_data(self.reference_bfs_path, breadth_first_search)
+
+        keys = self.romania.node.keys()
+        pairs = itertools.permutations(keys, 2)
+        for src in keys:
+            for dst in keys:
+                self.romania.reset_search()
+                path = breadth_first_search(self.romania, src, dst)
+                ref_len, ref_path = self.reference_bfs_path(self.romania, src, dst)
+                self.assertTrue(is_valid(self.romania, path, src, dst),
+                     msg="path %s for start '%s' and goal '%s' is not valid" % (path, src, dst))
+                if src != dst: # we want path == [] if src == dst
+                    self.assertTrue(len(path) == len(ref_path), msg="Path is too long. Real path: %s, your path: %s" % (ref_path, path))
 
     def test_ucs_romania(self):
         """Test uniform cost search with Romania data."""
