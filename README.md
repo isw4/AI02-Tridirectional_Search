@@ -296,3 +296,4 @@ Here are some notes you might find useful.
 4. Most 'NoneType object ...' errors are because the path you return is not completely connected (a pair of successive nodes in the path are not connected). Or because the path variable itself is empty.
 5. Adding unit tests to your code may cause your Bonnie submission to fail. It is best to comment them out when you submit to Bonnie.
 6. Make sure you're returning [] for when the source and destination points are the same.
+7. Make sure you break ties using FIFO in your priority queue implementation.
