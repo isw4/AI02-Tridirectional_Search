@@ -336,23 +336,6 @@ def custom_search(graph, start, goal, data=None):
     raise NotImplementedError
 
 
-def load_data():
-    """
-    Loads data from data.pickle and return the data object that is passed to
-    the custom_search method.
-
-    Will be called only once. Feel free to modify.
-
-    Returns:
-         The data loaded from the pickle file.
-    """
-
-    dir_name = os.path.dirname(os.path.realpath(__file__))
-    pickle_file_path = os.path.join(dir_name, "data.pickle")
-    data = pickle.load(open(pickle_file_path, 'rb'))
-    return data
-
-
 def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic):
     """
     Exercise 5: Use this to test out your implementation for Three Bidirectional Searches to help you with the report.
@@ -372,19 +355,47 @@ def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic)
     pass
 
 
-def custom_heuristic(graph, v, goal):
+# Extra Credit: Your best search method for the race
+def custom_search(graph, start, goal, data=None):
     """
-       Exercise 5: Use this to test out any custom heuristic for comparing Tridirectional vs 3 Bidirectional Searches for the report.
+    Race!: Implement your best search algorithm here to compete against the
+    other student agents.
 
-       See README.md for exercise description.
+    If you implement this function and submit your code to bonnie, you'll be
+    registered for the Race!
 
-       Args:
-           graph (ExplorableGraph): Undirected graph to search.
-           v (str): Key for the node to calculate from.
-           goal (str): Key for the end node to calculate to.
+    See README.md and the piazza post for exercise description.
 
-       Returns:
-           Custom heuristic distance between `v` node and `goal` node
-       """
+    Args:
+        graph (ExplorableGraph): Undirected graph to search.
+        start (str): Key for the start node.
+        goal (str): Key for the end node.
+        data :  Data used in the custom search.
+            Will be passed your data from load_data(graph).
+            Default: None.
 
-    pass
+    Returns:
+        The best path as a list from the start and goal nodes (including both).
+    """
+
+    # TODO: finish this function!
+    raise NotImplementedError
+
+
+
+def load_data(graph, time_left):
+    """
+    Feel free to implement this method. We'll call it only once
+    at the beginning of the Race, and we'll pass the output to your custom_search function.
+    graph: a networkx graph
+    time_left: function you can call to keep track of your remaining time.
+        usage: time_left() returns the time left in milliseconds.
+        the max time will be 10 minutes.
+
+    * To get a list of nodes, use graph.nodes()
+    * To get node neighbors, use graph.neighbors(node)
+    * To get edge weight, use graph[node1][node2]['weight']
+    """
+
+    # nodes = graph.nodes()
+    return None
