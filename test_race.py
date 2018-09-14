@@ -4,6 +4,7 @@ import unittest
 import time
 
 from search_submission import load_data, custom_search
+from explorable_graph import ExplorableGraph
 
 def get_time_milliseconds():
     return int(round(time.time() * 1000))
@@ -35,13 +36,13 @@ class TestRace(unittest.TestCase):
         start_time_ms = get_time_milliseconds()
 
         def time_left():
-            return max_time - (curr_time_millis() - start_time_ms)
+            return max_time - (get_time_milliseconds() - start_time_ms)
         
         data = load_data(self.romania, time_left)
 
         start = 'a'
-        end = 'u'
-        path = custom_search(graph, start, goal, data=data)
+        goal = 'u'
+        path = custom_search(self.romania, start, goal, data=data)
 
         
 
