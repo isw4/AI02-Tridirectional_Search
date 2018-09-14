@@ -277,6 +277,7 @@ A simple task to wind down the assignment. Return you name from the function apt
 ### The Race!
 
 Here's your chance to show us your best stuff. This part is mandatory if you want to compete in the race for extra credit. Implement `custom_search()` using whatever strategy you like.
+For more details, visit the announcement on piazza post @485.
 
 **Bonus points are added to the grade for this assignment, not to your overall grade.**
 
