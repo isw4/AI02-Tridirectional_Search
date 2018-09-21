@@ -13,404 +13,419 @@ import pickle
 
 
 class PriorityQueue(object):
-    """
-    A queue structure where each element is served in order of priority.
+	"""
+	A queue structure where each element is served in order of priority.
 
-    Elements in the queue are popped based on the priority with higher priority
-    elements being served before lower priority elements.  If two elements have
-    the same priority, they will be served in the order they were added to the
-    queue.
+	Elements in the queue are popped based on the priority with higher priority
+	elements being served before lower priority elements.  If two elements have
+	the same priority, they will be served in the order they were added to the
+	queue.
 
-    Traditionally priority queues are implemented with heaps, but there are any
-    number of implementation options.
+	Traditionally priority queues are implemented with heaps, but there are any
+	number of implementation options.
 
-    (Hint: take a look at the module heapq)
+	(Hint: take a look at the module heapq)
 
-    Attributes:
-        queue (list): Nodes added to the priority queue.
-        current (int): The index of the current node in the queue.
-    """
+	Attributes:
+		queue (list): Nodes added to the priority queue.
+		current (int): The index of the current node in the queue.
+	"""
 
-    def __init__(self):
-        """Initialize a new Priority Queue."""
+	def __init__(self):
+		"""Initialize a new Priority Queue."""
+		self.queue = []
 
-        self.queue = []
+	def pop(self):
+		"""
+		Pop top priority node from queue.
 
-    def pop(self):
-        """
-        Pop top priority node from queue.
+		Returns:
+			The node with the highest priority.
+		"""
+		return heapq.heappop(self.queue)
 
-        Returns:
-            The node with the highest priority.
-        """
+	def remove(self, node_id):
+		"""
+		Remove a node from the queue.
 
-        # TODO: finish this function!
-        raise NotImplementedError
+		This is a hint, you might require this in ucs,
+		however, if you choose not to use it, you are free to
+		define your own method and not use it.
 
-    def remove(self, node_id):
-        """
-        Remove a node from the queue.
+		Args:
+			node_id (int): Index of node in queue.
+		"""
 
-        This is a hint, you might require this in ucs,
-        however, if you choose not to use it, you are free to
-        define your own method and not use it.
+		raise NotImplementedError
 
-        Args:
-            node_id (int): Index of node in queue.
-        """
+	def __iter__(self):
+		"""Queue iterator."""
+		return iter(sorted(self.queue))
 
-        raise NotImplementedError
+	def __str__(self):
+		"""Priority Queue to string."""
+		return 'PQ:%s' % self.queue
 
-    def __iter__(self):
-        """Queue iterator."""
+	def append(self, node):
+		"""
+		Append a node to the queue.
 
-        return iter(sorted(self.queue))
+		Args:
+			node: Comparable Object to be added to the priority queue.
+		"""
+		heapq.heappush(self.queue, node)
 
-    def __str__(self):
-        """Priority Queue to string."""
+	def __contains__(self, key):
+		"""
+		Containment Check operator for 'in'
 
-        return 'PQ:%s' % self.queue
+		Args:
+			key: The key to check for in the queue.
 
-    def append(self, node):
-        """
-        Append a node to the queue.
+		Returns:
+			True if key is found in queue, False otherwise.
+		"""
+		return key in [n for _, _, n in self.queue]
 
-        Args:
-            node: Comparable Object to be added to the priority queue.
-        """
+	def __eq__(self, other):
+		"""
+		Compare this Priority Queue with another Priority Queue.
 
-        # TODO: finish this function!
-        raise NotImplementedError
+		Args:
+			other (PriorityQueue): Priority Queue to compare against.
 
-    def __contains__(self, key):
-        """
-        Containment Check operator for 'in'
+		Returns:
+			True if the two priority queues are equivalent.
+		"""
+		return self == other
 
-        Args:
-            key: The key to check for in the queue.
+	def size(self):
+		"""
+		Get the current size of the queue.
 
-        Returns:
-            True if key is found in queue, False otherwise.
-        """
+		Returns:
+			Integer of number of items in queue.
+		"""
+		return len(self.queue)
 
-        return key in [n for _, n in self.queue]
+	def clear(self):
+		"""Reset queue to empty (no nodes)."""
+		self.queue = []
 
-    def __eq__(self, other):
-        """
-        Compare this Priority Queue with another Priority Queue.
+	def top(self):
+		"""
+		Get the top item in the queue.
 
-        Args:
-            other (PriorityQueue): Priority Queue to compare against.
-
-        Returns:
-            True if the two priority queues are equivalent.
-        """
-
-        return self == other
-
-    def size(self):
-        """
-        Get the current size of the queue.
-
-        Returns:
-            Integer of number of items in queue.
-        """
-
-        return len(self.queue)
-
-    def clear(self):
-        """Reset queue to empty (no nodes)."""
-
-        self.queue = []
-
-    def top(self):
-        """
-        Get the top item in the queue.
-
-        Returns:
-            The first item stored in teh queue.
-        """
-
-        return self.queue[0]
+		Returns:
+			The first item stored in teh queue.
+		"""
+		return self.queue[0]
 
 
 def breadth_first_search(graph, start, goal):
-    """
-    Warm-up exercise: Implement breadth-first-search.
+	"""
+	Warm-up exercise: Implement breadth-first-search.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+		If there is no path, returns None
+	"""
+	if start == goal: return []
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# Init visited
+	visited = set()
+	visited |= {start}
+	# Init frontier
+	frontier = PriorityQueue()
+	path_len = 0  # Length of path (priority)
+	entry_count = 0  # To break ties in priority. If priority is the same, the earlier entry is popped first
+	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
+	frontier.append((path_len, entry_count, path))
+
+	while frontier.size() > 0:
+		path_len, _, path = frontier.pop()
+		neighbours_iter = graph.neighbors_iter(path[-1])
+
+		for neighbour in neighbours_iter:
+			if neighbour == goal:
+				path.append(neighbour)
+				return path
+
+			if neighbour not in visited:
+				visited |= {neighbour}
+				entry_count += 1
+				path_to_front = list(path)
+				path_to_front.append(neighbour)
+				frontier.append((path_len + 1, entry_count, path_to_front))
+
+	return None
 
 
 def uniform_cost_search(graph, start, goal):
-    """
-    Warm-up exercise: Implement uniform_cost_search.
+	"""
+	Warm-up exercise: Implement uniform_cost_search.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def null_heuristic(graph, v, goal):
-    """
-    Null heuristic used as a base line.
+	"""
+	Null heuristic used as a base line.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        v (str): Key for the node to calculate from.
-        goal (str): Key for the end node to calculate to.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		v (str): Key for the node to calculate from.
+		goal (str): Key for the end node to calculate to.
 
-    Returns:
-        0
-    """
+	Returns:
+		0
+	"""
 
-    return 0
+	return 0
 
 
 def euclidean_dist_heuristic(graph, v, goal):
-    """
-    Warm-up exercise: Implement the euclidean distance heuristic.
+	"""
+	Warm-up exercise: Implement the euclidean distance heuristic.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        v (str): Key for the node to calculate from.
-        goal (str): Key for the end node to calculate to.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		v (str): Key for the node to calculate from.
+		goal (str): Key for the end node to calculate to.
 
-    Returns:
-        Euclidean distance between `v` node and `goal` node
-    """
+	Returns:
+		Euclidean distance between `v` node and `goal` node
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def a_star(graph, start, goal, heuristic=euclidean_dist_heuristic):
-    """
-    Warm-up exercise: Implement A* algorithm.
+	"""
+	Warm-up exercise: Implement A* algorithm.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
-        heuristic: Function to determine distance heuristic.
-            Default: euclidean_dist_heuristic.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
+		heuristic: Function to determine distance heuristic.
+			Default: euclidean_dist_heuristic.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def bidirectional_ucs(graph, start, goal):
-    """
-    Exercise 1: Bidirectional Search.
+	"""
+	Exercise 1: Bidirectional Search.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def bidirectional_a_star(graph, start, goal,
-                         heuristic=euclidean_dist_heuristic):
-    """
-    Exercise 2: Bidirectional A*.
+						 heuristic=euclidean_dist_heuristic):
+	"""
+	Exercise 2: Bidirectional A*.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
-        heuristic: Function to determine distance heuristic.
-            Default: euclidean_dist_heuristic.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
+		heuristic: Function to determine distance heuristic.
+			Default: euclidean_dist_heuristic.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def tridirectional_search(graph, goals):
-    """
-    Exercise 3: Tridirectional UCS Search
+	"""
+	Exercise 3: Tridirectional UCS Search
 
-    See README.MD for exercise description.
+	See README.MD for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        goals (list): Key values for the 3 goals
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		goals (list): Key values for the 3 goals
 
-    Returns:
-        The best path as a list from one of the goal nodes (including both of
-        the other goal nodes).
-    """
-    # TODO: finish this function
-    raise NotImplementedError
+	Returns:
+		The best path as a list from one of the goal nodes (including both of
+		the other goal nodes).
+	"""
+	# TODO: finish this function
+	raise NotImplementedError
 
 
 def tridirectional_upgraded(graph, goals, heuristic=euclidean_dist_heuristic):
-    """
-    Exercise 4: Upgraded Tridirectional Search
+	"""
+	Exercise 4: Upgraded Tridirectional Search
 
-    See README.MD for exercise description.
+	See README.MD for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        goals (list): Key values for the 3 goals
-        heuristic: Function to determine distance heuristic.
-            Default: euclidean_dist_heuristic.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		goals (list): Key values for the 3 goals
+		heuristic: Function to determine distance heuristic.
+			Default: euclidean_dist_heuristic.
 
-    Returns:
-        The best path as a list from one of the goal nodes (including both of
-        the other goal nodes).
-    """
-    # TODO: finish this function
-    raise NotImplementedError
+	Returns:
+		The best path as a list from one of the goal nodes (including both of
+		the other goal nodes).
+	"""
+	# TODO: finish this function
+	raise NotImplementedError
 
 
 def return_your_name():
-    """Return your name from this function"""
-    # TODO: finish this function
-    raise NotImplementedError
+	"""Return your name from this function"""
+	# TODO: finish this function
+	raise NotImplementedError
 
 
 # Extra Credit: Your best search method for the race
 def custom_search(graph, start, goal, data=None):
-    """
-    Race!: Implement your best search algorithm here to compete against the
-    other student agents.
+	"""
+	Race!: Implement your best search algorithm here to compete against the
+	other student agents.
 
-    See README.md for exercise description.
+	See README.md for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
-        data :  Data used in the custom search.
-            Default: None.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
+		data :  Data used in the custom search.
+			Default: None.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic):
-    """
-    Exercise 5: Use this to test out your implementation for Three Bidirectional Searches to help you with the report.
+	"""
+	Exercise 5: Use this to test out your implementation for Three Bidirectional Searches to help you with the report.
 
-    See README.MD for exercise description
+	See README.MD for exercise description
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        goals (list): Key values for the 3 goals
-        heuristic: Function to determine distance heuristic.
-            Default: euclidean_dist_heuristic.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		goals (list): Key values for the 3 goals
+		heuristic: Function to determine distance heuristic.
+			Default: euclidean_dist_heuristic.
 
-    Returns:
-        The best path as a list from one of the goal nodes (including both of
-        the other goal nodes).
-    """
-    pass
+	Returns:
+		The best path as a list from one of the goal nodes (including both of
+		the other goal nodes).
+	"""
+	pass
 
 
 def custom_heuristic(graph, v, goal):
-    """
-       Exercise 5: Use this to test out any custom heuristic for comparing Tridirectional vs 3 Bidirectional Searches for the report.
-       See README.md for exercise description.
-       Args:
-           graph (ExplorableGraph): Undirected graph to search.
-           v (str): Key for the node to calculate from.
-           goal (str): Key for the end node to calculate to.
-       Returns:
-           Custom heuristic distance between `v` node and `goal` node
-       """
+	"""
+	   Exercise 5: Use this to test out any custom heuristic for comparing Tridirectional vs 3 Bidirectional Searches for the report.
+	   See README.md for exercise description.
+	   Args:
+		   graph (ExplorableGraph): Undirected graph to search.
+		   v (str): Key for the node to calculate from.
+		   goal (str): Key for the end node to calculate to.
+	   Returns:
+		   Custom heuristic distance between `v` node and `goal` node
+	   """
 
 pass
 
 
 # Extra Credit: Your best search method for the race
 def custom_search(graph, start, goal, data=None):
-    """
-    Race!: Implement your best search algorithm here to compete against the
-    other student agents.
+	"""
+	Race!: Implement your best search algorithm here to compete against the
+	other student agents.
 
-    If you implement this function and submit your code to bonnie, you'll be
-    registered for the Race!
+	If you implement this function and submit your code to bonnie, you'll be
+	registered for the Race!
 
-    See README.md and the piazza post for exercise description.
+	See README.md and the piazza post for exercise description.
 
-    Args:
-        graph (ExplorableGraph): Undirected graph to search.
-        start (str): Key for the start node.
-        goal (str): Key for the end node.
-        data :  Data used in the custom search.
-            Will be passed your data from load_data(graph).
-            Default: None.
+	Args:
+		graph (ExplorableGraph): Undirected graph to search.
+		start (str): Key for the start node.
+		goal (str): Key for the end node.
+		data :  Data used in the custom search.
+			Will be passed your data from load_data(graph).
+			Default: None.
 
-    Returns:
-        The best path as a list from the start and goal nodes (including both).
-    """
+	Returns:
+		The best path as a list from the start and goal nodes (including both).
+	"""
 
-    # TODO: finish this function!
-    raise NotImplementedError
+	# TODO: finish this function!
+	raise NotImplementedError
 
 
 
 def load_data(graph, time_left):
-    """
-    Feel free to implement this method. We'll call it only once
-    at the beginning of the Race, and we'll pass the output to your custom_search function.
-    graph: a networkx graph
-    time_left: function you can call to keep track of your remaining time.
-        usage: time_left() returns the time left in milliseconds.
-        the max time will be 10 minutes.
+	"""
+	Feel free to implement this method. We'll call it only once
+	at the beginning of the Race, and we'll pass the output to your custom_search function.
+	graph: a networkx graph
+	time_left: function you can call to keep track of your remaining time.
+		usage: time_left() returns the time left in milliseconds.
+		the max time will be 10 minutes.
 
-    * To get a list of nodes, use graph.nodes()
-    * To get node neighbors, use graph.neighbors(node)
-    * To get edge weight, use graph[node1][node2]['weight']
-    """
+	* To get a list of nodes, use graph.nodes()
+	* To get node neighbors, use graph.neighbors(node)
+	* To get edge weight, use graph[node1][node2]['weight']
+	"""
 
-    # nodes = graph.nodes()
-    return None
+	# nodes = graph.nodes()
+	return None
