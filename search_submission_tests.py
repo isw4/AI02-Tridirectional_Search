@@ -17,52 +17,82 @@ class TestPriorityQueue(unittest.TestCase):
 	"""Test Priority Queue implementation"""
 
 	def test_append_and_pop(self):
-		"""Test the append and pop functions"""
+		"""Test the append and pop functions and that the id_table is being maintained at the same time"""
 		queue = PriorityQueue()
 		temp_list = []
 
-		for _ in xrange(10):
+		for i in xrange(10):
 			a = random.randint(0, 10000)
-			queue.append((a, a, 'a'))
+			queue.append((a, 'a'))
+			self.assertEqual(len(queue.id_table), i + 1, "ID table is not being pushed to correctly")
 			temp_list.append(a)
 
 		temp_list = sorted(temp_list)
 
-		for item in temp_list:
+		for i in range(0, len(temp_list)):
 			popped = queue.pop()
-			self.assertEqual(item, popped[0])
+			self.assertEqual(len(queue.id_table), len(temp_list) - (i + 1), "ID table is not being popped correctly")
+			self.assertEqual(temp_list[i], popped[0], "Heap not popping the right things")
 
 	def test_append_and_pop_tiebreaker(self):
 		"""Test the append and pop elements with the same priority"""
 		queue = PriorityQueue()
+		entries = [(200, 'a'),
+		           (300, 'a'),
+		           (300, 'a'),
+		           (200, 'a'),
+		           (300, 'a')]
+
 		truth = [(200, 0, 'a'),
-		         (200, 1, 'a'),
+		         (200, 3, 'a'),
+		         (300, 1, 'a'),
 		         (300, 2, 'a'),
-		         (300, 3, 'a'),
 		         (300, 4, 'a')]
 
-		randomized = list(truth)
-		random.shuffle(randomized)
-		for i in range(0, len(truth)):
-			queue.append(randomized[i])
+		for i in range(0, len(entries)):
+			queue.append(entries[i])
 
 		for item in truth:
 			popped = queue.pop()
-			self.assertEqual(item, popped)
+			self.assertEqual(item, popped, "Heap not popping the right things")
 
 	def test_contains(self):
+		""" Test the contains functionality"""
 		queue = PriorityQueue()
-		truth = [(200, 0, 'a'),
-		         (200, 1, 'b'),
-		         (300, 2, 'c'),
-		         (300, 3, 'd'),
-		         (300, 4, 'e')]
+		truth = [(200, 'a'),
+		         (200, 'b'),
+		         (300, 'c'),
+		         (300, 'd'),
+		         (300, 'e')]
 
 		for i in range(0, len(truth)):
 			queue.append(truth[i])
 
-		self.assertNotIn('z', queue)
-		self.assertIn('c', queue)
+		self.assertNotIn('z', queue, "z is not supposed to be in queue")
+		self.assertIn('c', queue, "c is supposed to be in queue")
+
+	def test_remove(self):
+		"""Tests the remove functionality"""
+		queue = PriorityQueue()
+		add = [(200, 'a'),
+		       (200, 'b'),
+		       (300, 'c'),
+		       (300, 'd'),
+		       (300, 'e')]
+
+		for i in range(0, len(add)):
+			queue.append(add[i])
+
+		queue.remove(2) # Removes the node with id==2
+		self.assertEqual(len(queue.id_table), len(add) - 1)
+
+		truth = [(200, 0, 'a'),
+		         (200, 1, 'b'),
+		         (300, 3, 'd'),
+		         (300, 4, 'e')]
+		for item in truth:
+			popped = queue.pop()
+			self.assertEqual(item, popped, "Heap not popping the right things")
 
 class TestBasicSearch(unittest.TestCase):
 	"""Test the simple search algorithms: BFS, UCS, A*"""
@@ -97,21 +127,26 @@ class TestBasicSearch(unittest.TestCase):
 		goal = "a"
 		path = breadth_first_search(self.romania, start, goal)
 		self.assertEqual(path, [])
-	#
-	# def test_ucs(self):
-	# 	"""TTest and visualize uniform-cost search"""
-	# 	start = 'a'
-	# 	goal = 'u'
-	#
-	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
-	# 					  self.romania.node.keys()}
-	#
-	# 	self.romania.reset_search()
-	# 	path = uniform_cost_search(self.romania, start, goal)
-	#
-	# 	self.draw_graph(self.romania, node_positions=node_positions,
-	# 					start=start, goal=goal, path=path)
-	#
+
+	def test_ucs(self):
+		"""TTest and visualize uniform-cost search"""
+		start = 'a'
+		goal = 'u'
+
+		node_positions = {n: self.romania.node[n]['pos'] for n in
+						  self.romania.node.keys()}
+
+		self.romania.reset_search()
+		path = uniform_cost_search(self.romania, start, goal)
+
+		self.draw_graph(self.romania, node_positions=node_positions,
+						start=start, goal=goal, path=path)
+
+		truth = ['a', 's', 'r', 'p', 'b', 'u']
+		self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
+		for i in range(0, len(truth)):
+			self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
+
 	# def test_a_star(self):
 	# 	"""Test and visualize A* search"""
 	# 	start = 'a'

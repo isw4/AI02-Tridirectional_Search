@@ -30,33 +30,36 @@ class PriorityQueue(object):
 		queue (list): Nodes added to the priority queue.
 		current (int): The index of the current node in the queue.
 	"""
+	REMOVED = "<PATH REMOVED>"
 
 	def __init__(self):
 		"""Initialize a new Priority Queue."""
+		self.entry_count = 0
 		self.queue = []
+		self.id_table = {}
 
 	def pop(self):
 		"""
 		Pop top priority node from queue.
 
-		Returns:
-			The node with the highest priority.
+		:returns The node with the highest priority.
 		"""
-		return heapq.heappop(self.queue)
+		while self.size() > 0:
+			entry = heapq.heappop(self.queue)
+			if entry[1] in self.id_table:
+				self.id_table.pop(entry[1])
+				return tuple(entry)
+		return None
 
 	def remove(self, node_id):
 		"""
-		Remove a node from the queue.
+		Remove a node from the queue. (It doesn't actually remove it, it only marks it as removed
+		so that if it's at the top of the heap, it won't be popped)
 
-		This is a hint, you might require this in ucs,
-		however, if you choose not to use it, you are free to
-		define your own method and not use it.
-
-		Args:
-			node_id (int): Index of node in queue.
+		:param node_id: (int) Index of node in queue.
 		"""
-
-		raise NotImplementedError
+		entry = self.id_table.pop(node_id)
+		entry[-1] = PriorityQueue.REMOVED
 
 	def __iter__(self):
 		"""Queue iterator."""
@@ -68,12 +71,24 @@ class PriorityQueue(object):
 
 	def append(self, node):
 		"""
-		Append a node to the queue.
+		Append a node to the queue. Typically, the node should be of format (priority, vertex/path).
+		The node to be added to the queue will be of format (priority, entry_count, vertex/path).
+		entry_count acts as:
+			1) a way to break ties in priority, so that the node that was first added will be popped
+			   first in the case of a tie
+			2) an id for the node
 
-		Args:
-			node: Comparable Object to be added to the priority queue.
+		:param node: Comparable Object to be added to the priority queue.
+		:returns the entry_count/id of the node that was just appended
 		"""
-		heapq.heappush(self.queue, node)
+		# Push onto queue
+		entry = [node[0], self.entry_count, node[1]]
+		heapq.heappush(self.queue, entry)
+		# Push onto id table
+		self.id_table[self.entry_count] = entry
+		# Update counter
+		self.entry_count += 1
+		return entry[1]
 
 	def __contains__(self, key):
 		"""
@@ -145,9 +160,8 @@ def breadth_first_search(graph, start, goal):
 	# Init frontier
 	frontier = PriorityQueue()
 	path_len = 0  # Length of path (priority)
-	entry_count = 0  # To break ties in priority. If priority is the same, the earlier entry is popped first
 	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
-	frontier.append((path_len, entry_count, path))
+	frontier.append((path_len, path))
 
 	while frontier.size() > 0:
 		path_len, _, path = frontier.pop()
@@ -160,10 +174,9 @@ def breadth_first_search(graph, start, goal):
 
 			if neighbour not in visited:
 				visited |= {neighbour}
-				entry_count += 1
 				path_to_front = list(path)
 				path_to_front.append(neighbour)
-				frontier.append((path_len + 1, entry_count, path_to_front))
+				frontier.append((path_len + 1, path_to_front))
 
 	return None
 
@@ -182,9 +195,41 @@ def uniform_cost_search(graph, start, goal):
 	Returns:
 		The best path as a list from the start and goal nodes (including both).
 	"""
+	if start == goal: return []
 
-	# TODO: finish this function!
-	raise NotImplementedError
+	# Init explored
+	explored = set()
+	# Init frontier
+	frontier = PriorityQueue()
+	path_cost = 0   # Cost of path (priority)
+	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
+	id = frontier.append((path_cost, path))
+	# Init hash table storing the best cost to the node
+	best_cost_to_node = {}
+	best_cost_to_node[start] = { "cost":path_cost, "id":id }
+
+	while frontier.size() > 0:
+		path_cost, _, path = frontier.pop()
+		if path[-1] == goal:
+			return path
+		neighbours_iter = graph.neighbors_iter(path[-1])
+		explored |= {path[-1]}
+
+		for neighbour in neighbours_iter:
+			if neighbour not in explored:
+				cost_to_front = path_cost + graph[path[-1]][neighbour]['weight']
+				if neighbour not in best_cost_to_node:
+					path_to_front = list(path)
+					path_to_front.append(neighbour)
+					id = frontier.append((cost_to_front, path_to_front))
+					best_cost_to_node[neighbour] = {"cost": cost_to_front, "id": id}
+				elif neighbour in best_cost_to_node and cost_to_front < best_cost_to_node[neighbour]['cost']:
+					frontier.remove(best_cost_to_node[neighbour]['id'])
+					path_to_front = list(path)
+					path_to_front.append(neighbour)
+					id = frontier.append((cost_to_front, path_to_front))
+					best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id }
+	return None
 
 
 def null_heuristic(graph, v, goal):
