@@ -1,5 +1,5 @@
 # coding=utf-8
-import pickle
+import cPickle as pickle
 import random
 import unittest
 
@@ -8,7 +8,7 @@ import networkx
 
 from explorable_graph import ExplorableGraph
 from search_submission import PriorityQueue, a_star, bidirectional_a_star, \
-	bidirectional_ucs, breadth_first_search, uniform_cost_search
+	bidirectional_ucs, breadth_first_search, uniform_cost_search, null_heuristic
 from search_submission import three_bidirectional_search, tridirectional_upgraded, custom_heuristic
 from visualize_graph import plot_search
 
@@ -147,19 +147,24 @@ class TestBasicSearch(unittest.TestCase):
 		for i in range(0, len(truth)):
 			self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
 
-	# def test_a_star(self):
-	# 	"""Test and visualize A* search"""
-	# 	start = 'a'
-	# 	goal = 'u'
-	#
-	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
-	# 					  self.romania.node.keys()}
-	#
-	# 	self.romania.reset_search()
-	# 	path = a_star(self.romania, start, goal)
-	#
-	# 	self.draw_graph(self.romania, node_positions=node_positions,
-	# 					start=start, goal=goal, path=path)
+	def test_a_star(self):
+		"""Test and visualize A* search"""
+		start = 'a'
+		goal = 'u'
+
+		node_positions = {n: self.romania.node[n]['pos'] for n in
+						  self.romania.node.keys()}
+
+		self.romania.reset_search()
+		path = a_star(self.romania, start, goal)
+
+		self.draw_graph(self.romania, node_positions=node_positions,
+						start=start, goal=goal, path=path)
+
+		truth = ['a', 's', 'r', 'p', 'b', 'u']
+		self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
+		for i in range(0, len(truth)):
+			self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
 
 	@staticmethod
 	def draw_graph(graph, node_positions=None, start=None, goal=None,
@@ -196,16 +201,16 @@ class TestBasicSearch(unittest.TestCase):
 
 		plt.plot()
 		plt.show()
-#
-#
-# class TestBidirectionalSearch(unittest.TestCase):
-# 	"""Test the bidirectional search algorithms: UCS, A*"""
-#
-# 	def setUp(self):
-# 		"""Load Atlanta map data"""
-# 		atlanta = pickle.load(open('atlanta_osm.pickle', 'rb'))
-# 		self.atlanta = ExplorableGraph(atlanta)
-# 		self.atlanta.reset_search()
+
+
+class TestBidirectionalSearch(unittest.TestCase):
+	"""Test the bidirectional search algorithms: UCS, A*"""
+
+	def setUp(self):
+		"""Load Atlanta map data"""
+		atlanta = pickle.load(open('atlanta_osm.pickle', 'rb'))
+		self.atlanta = ExplorableGraph(atlanta)
+		self.atlanta.reset_search()
 #
 # 	def test_bidirectional_ucs(self):
 # 		"""Test and generate GeoJSON for bidirectional UCS search"""

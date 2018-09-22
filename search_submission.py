@@ -9,7 +9,8 @@ from __future__ import division
 
 import heapq
 import os
-import pickle
+import cPickle as pickle
+import numpy as np
 
 
 class PriorityQueue(object):
@@ -258,30 +259,66 @@ def euclidean_dist_heuristic(graph, v, goal):
 	Returns:
 		Euclidean distance between `v` node and `goal` node
 	"""
-
-	# TODO: finish this function!
-	raise NotImplementedError
+	v_xy = np.array(graph.node[v]['pos'])
+	goal_xy = np.array(graph.node[goal]['pos'])
+	return np.linalg.norm(v_xy - goal_xy)
 
 
 def a_star(graph, start, goal, heuristic=euclidean_dist_heuristic):
 	"""
-	Warm-up exercise: Implement A* algorithm.
+	A* search implementation
 
-	See README.md for exercise description.
-
-	Args:
-		graph (ExplorableGraph): Undirected graph to search.
-		start (str): Key for the start node.
-		goal (str): Key for the end node.
-		heuristic: Function to determine distance heuristic.
+	:param graph: (ExplorableGraph/Graph) Undirected graph to search.
+	:param start: (str) Key for the start node.
+	:param goal: (str) Key for the end node.
+	:param heuristic: Function to determine distance heuristic.
 			Default: euclidean_dist_heuristic.
 
-	Returns:
+	:returns
 		The best path as a list from the start and goal nodes (including both).
+		If there is no path, returns None
 	"""
+	if start == goal: return []
 
-	# TODO: finish this function!
-	raise NotImplementedError
+	# Init explored (vertices that have been expanded. Unlike BFS, must continue to visit a node until its expanded)
+	explored = set()
+	# Init frontier (vertices to be expanded)
+	frontier = PriorityQueue()
+	path_cost = 0   # Cost/weight of path (not used for priority, but used to prune longer paths to the same node)
+	path_f = path_cost + heuristic(graph, start, goal)     # Path priority estimate f used for A*
+	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
+	id = frontier.append((path_f, path))
+	# Init hash table storing the best cost to the node (better paths to the same node will replace old paths)
+	best_cost_to_node = {}
+	best_cost_to_node[start] = { "cost":path_cost, "id":id }
+
+	while frontier.size() > 0:
+		path_f, _, path = frontier.pop()
+		if path[-1] == goal:    # Once the goal is expanded, there are no more lower cost paths to consider
+			return path
+
+		path_cost = path_f - heuristic(graph, path[-1], goal)   # Get back the actual cost and not the estimate f
+		neighbours_iter = graph.neighbors_iter(path[-1])        # Getting the neighbours of the last node in the path
+		explored |= {path[-1]}
+
+		for neighbour in neighbours_iter:
+			if neighbour not in explored:
+				cost_to_front = path_cost + graph[path[-1]][neighbour]['weight']
+				f_to_front = cost_to_front + heuristic(graph, neighbour, goal)
+
+				# If the actual path to the node (not estimate) is better than one that has already been seen,
+				# remove it from frontier to be replaced later
+				if neighbour in best_cost_to_node and cost_to_front < best_cost_to_node[neighbour]['cost']:
+					frontier.remove(best_cost_to_node[neighbour]['id'])
+				# If the path to the node is worse than one that has already been seen, prune this path
+				elif neighbour in best_cost_to_node and cost_to_front >= best_cost_to_node[neighbour]['cost']:
+					continue
+				# Add path to frontier and update best cost to the node
+				path_to_front = list(path)
+				path_to_front.append(neighbour)
+				id = frontier.append((f_to_front, path_to_front))
+				best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id }
+	return None
 
 
 def bidirectional_ucs(graph, start, goal):
