@@ -39,6 +39,27 @@ class PriorityQueue(object):
 		self.queue = []
 		self.id_table = {}
 
+	def append(self, node):
+		"""
+		Append a node to the queue. Typically, the node should be of format (priority, vertex/path).
+		The node to be added to the queue will be of format (priority, entry_count, vertex/path).
+		entry_count acts as:
+			1) a way to break ties in priority, so that the node that was first added will be popped
+			   first in the case of a tie
+			2) an id for the node
+
+		:param node: Comparable Object to be added to the priority queue.
+		:returns the entry_count/id of the node that was just appended
+		"""
+		# Push onto queue
+		entry = [node[0], self.entry_count, node[1]]
+		heapq.heappush(self.queue, entry)
+		# Push onto id table
+		self.id_table[self.entry_count] = entry
+		# Update counter
+		self.entry_count += 1
+		return entry[1]
+
 	def pop(self):
 		"""
 		Pop top priority node from queue.
@@ -62,6 +83,16 @@ class PriorityQueue(object):
 		entry = self.id_table.pop(node_id)
 		entry[-1] = PriorityQueue.REMOVED
 
+	def find(self, node_id):
+		"""
+		Finds a node from the queue by its id
+
+		:param node_id:
+		:return: a copy of the node
+		"""
+		entry = self.id_table[node_id]
+		return tuple(entry)
+
 	def __iter__(self):
 		"""Queue iterator."""
 		return iter(sorted(self.queue))
@@ -69,27 +100,6 @@ class PriorityQueue(object):
 	def __str__(self):
 		"""Priority Queue to string."""
 		return 'PQ:%s' % self.queue
-
-	def append(self, node):
-		"""
-		Append a node to the queue. Typically, the node should be of format (priority, vertex/path).
-		The node to be added to the queue will be of format (priority, entry_count, vertex/path).
-		entry_count acts as:
-			1) a way to break ties in priority, so that the node that was first added will be popped
-			   first in the case of a tie
-			2) an id for the node
-
-		:param node: Comparable Object to be added to the priority queue.
-		:returns the entry_count/id of the node that was just appended
-		"""
-		# Push onto queue
-		entry = [node[0], self.entry_count, node[1]]
-		heapq.heappush(self.queue, entry)
-		# Push onto id table
-		self.id_table[self.entry_count] = entry
-		# Update counter
-		self.entry_count += 1
-		return entry[1]
 
 	def __contains__(self, key):
 		"""
@@ -198,10 +208,10 @@ def uniform_cost_search(graph, start, goal):
 	frontier = PriorityQueue()
 	path_cost = 0   # Cost/weight of path (priority)
 	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
-	id = frontier.append((path_cost, path))
+	id_ = frontier.append((path_cost, path))
 	# Init hash table storing the best cost to the node (better paths to the same node will replace old paths)
 	best_cost_to_node = {}
-	best_cost_to_node[start] = { "cost":path_cost, "id":id }
+	best_cost_to_node[start] = { "cost":path_cost, "id":id_ }
 
 	while frontier.size() > 0:
 		path_cost, _, path = frontier.pop()
@@ -224,8 +234,8 @@ def uniform_cost_search(graph, start, goal):
 				# Add path to frontier and update best cost to the node
 				path_to_front = list(path)
 				path_to_front.append(neighbour)
-				id = frontier.append((cost_to_front, path_to_front))
-				best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id }
+				id_ = frontier.append((cost_to_front, path_to_front))
+				best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id_ }
 	return None
 
 
@@ -287,10 +297,10 @@ def a_star(graph, start, goal, heuristic=euclidean_dist_heuristic):
 	path_cost = 0   # Cost/weight of path (not used for priority, but used to prune longer paths to the same node)
 	path_f = path_cost + heuristic(graph, start, goal)     # Path priority estimate f used for A*
 	path = [start]  # A list of nodes representing the path from the start to the node on the frontier
-	id = frontier.append((path_f, path))
+	id_ = frontier.append((path_f, path))
 	# Init hash table storing the best cost to the node (better paths to the same node will replace old paths)
 	best_cost_to_node = {}
-	best_cost_to_node[start] = { "cost":path_cost, "id":id }
+	best_cost_to_node[start] = { "cost":path_cost, "id":id_ }
 
 	while frontier.size() > 0:
 		path_f, _, path = frontier.pop()
@@ -316,9 +326,99 @@ def a_star(graph, start, goal, heuristic=euclidean_dist_heuristic):
 				# Add path to frontier and update best cost to the node
 				path_to_front = list(path)
 				path_to_front.append(neighbour)
-				id = frontier.append((f_to_front, path_to_front))
-				best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id }
+				id_ = frontier.append((f_to_front, path_to_front))
+				best_cost_to_node[neighbour] = {"cost":cost_to_front, "id":id_ }
 	return None
+
+###################################################################################
+#           BI-DIRECTIONAL ALGORITHMS
+###################################################################################
+
+class ExplorableAStarDirection:
+	def __init__(self, graph, seed, goal, heuristic):
+		self.graph = graph
+		self.goal = goal
+		self.heuristic = heuristic
+		self.explored = set()  # Vertices at the end of a path from the seed that have been expanded
+		self.frontier = PriorityQueue()  # Vertices at the end of a path from the seed to be expanded
+		self.best_cost_to_node = {}  # Best cost from the seed to the node (old paths will be replaced)
+
+		path_cost = 0  # Cost/weight of path
+		path_f = path_cost + heuristic(graph, seed, seed)  # TODO determine a good heuristic estimate and fix parameters
+		path = [seed]
+		id_ = self.frontier.append((path_f, path))
+
+		self.best_cost_to_node = {}
+		self.best_cost_to_node[seed] = {"cost": path_cost, "id": id_, 'path': path}
+
+	def add_to_explored(self, node):
+		self.explored |= {node}
+
+	def _combine_path(self, path, path_cost, other_dir):
+		path = list(path)
+		midpoint = path[-1]
+		other_path = other_dir.best_cost_to_node[midpoint]['path']
+		if path[0] == self.goal:
+			part2 = path[::-1]
+			combined_path = other_path[:-1]
+			combined_path.extend(part2)
+		else:
+			part2 = other_path[::-1]
+			combined_path = path[:-1]
+			combined_path.extend(part2)
+		combined_cost = path_cost + other_dir.best_cost_to_node[midpoint]['cost']
+		return combined_cost, combined_path
+
+	def search_once(self, other_dir, upper_bound):
+		combined_cost = None
+		combined_path = None
+		terminate = False
+
+		path_f, _, path = self.frontier.pop()
+		popped = path[-1]
+		path_cost = path_f - self.heuristic(self.graph, popped, self.goal)  # Get back the actual cost
+		# if path_cost >= upper_bound:
+		# 	print("No shorter path can be found than the existing shortest path. Returning")
+		# 	terminate = True
+		# 	return None, None, terminate
+
+		# Once the goal has been expanded/explored by both, the shortest path from one direction and
+		# the other direction to the intermediate has been found. However, the shortest path from one
+		# direction to the other has not necessarily been found. Will combine the two paths, and then
+		# continue to look at the neighbours.
+		if popped in other_dir.explored:
+			print("\nMIDPOINT {} POPPED".format(popped))
+			combined_cost, combined_path = self._combine_path(path, path_cost, other_dir)
+			print("Combined path {} with cost {}".format(combined_path, combined_cost))
+
+		neighbours_iter = self.graph.neighbors_iter(popped) # Getting the neighbours of the last node in the path
+		self.add_to_explored(popped)
+		print("\nLooking at path {}\nUpdated explored: {}".format(path, self.explored))
+
+		for neighbour in neighbours_iter:
+			if neighbour not in self.explored:
+				cost_to_front = path_cost + self.graph[popped][neighbour]['weight']
+				f_to_front = cost_to_front + self.heuristic(self.graph, neighbour, self.goal)
+				print("Neighbour {} found".format(neighbour))
+
+				# If the actual path to the node (not estimate) is better than one that has already been seen,
+				# remove it from frontier to be replaced later
+				if neighbour in self.best_cost_to_node and cost_to_front < self.best_cost_to_node[neighbour]['cost']:
+					print("Better than old path to {}\nBest: {}".format(neighbour, self.frontier))
+					self.frontier.remove(self.best_cost_to_node[neighbour]['id'])
+					print("Removed: {}".format(self.frontier))
+				# If the path to the node is worse than one that has already been seen, prune this path
+				elif neighbour in self.best_cost_to_node and cost_to_front >= self.best_cost_to_node[neighbour]['cost']:
+					print("Old path is better. Pruning this path")
+					continue
+				# Add path to frontier and update best cost to the node
+				path_to_front = list(path)
+				path_to_front.append(neighbour)
+				id_ = self.frontier.append((f_to_front, path_to_front))
+				self.best_cost_to_node[neighbour] = {"cost": cost_to_front, "id": id_, "path": path_to_front}
+				print("Frontier: {}\nBest: {}".format(self.frontier, self.best_cost_to_node))
+
+		return combined_cost, combined_path, terminate
 
 
 def bidirectional_ucs(graph, start, goal):
@@ -335,9 +435,40 @@ def bidirectional_ucs(graph, start, goal):
 	Returns:
 		The best path as a list from the start and goal nodes (including both).
 	"""
+	if start == goal: return []
+	path = None
 
-	# TODO: finish this function!
-	raise NotImplementedError
+	from_start = ExplorableAStarDirection(graph, start, goal, null_heuristic)
+	from_goal = ExplorableAStarDirection(graph, goal, goal, null_heuristic)
+
+	n = 0
+	upper_bound = float("inf")
+	while from_start.frontier.size() > 0 and from_goal.frontier.size() > 0:
+		if n % 2 == 0:
+			temp_cost, temp_path, terminate = from_start.search_once(from_goal, upper_bound)
+		else:
+			temp_cost, temp_path, terminate = from_goal.search_once(from_start, upper_bound)
+
+		if temp_cost is not None and temp_cost < upper_bound:
+			upper_bound = temp_cost
+			path = temp_path
+
+		f_1, _, path_1 = from_start.frontier.top()
+		f_2, _, path_2 = from_goal.frontier.top()
+		cost_1 = f_1 - null_heuristic(graph, path_1[-1], goal)
+		cost_2 = f_2 - null_heuristic(graph, path_2[-1], goal)
+		# Checking for crossover: path_1 = ['a', 'b', 'c'], path_2 = ['c' 'b']. Then distance b-c is counted twice
+		if path_1[-2:] == path_2[-2:][::-1]:
+			cost_1 -= graph[path_1[-2]][path_1[-1]]['weight']
+			print("Updated cost of path 1 {} to {}".format(path_1, cost_1))
+			print("Updated cost of path 2 {} to {}".format(path_2, cost_2))
+		if cost_1 + cost_2 >= upper_bound:
+			print("Path 1: {}\nPath 2: {}".format(path_1, path_2))
+			print(
+				"{} + {} is >= current shortest path cost of {}. Terminating here".format(cost_1, cost_2, upper_bound))
+			break
+		n += 1
+	return path
 
 
 def bidirectional_a_star(graph, start, goal,
