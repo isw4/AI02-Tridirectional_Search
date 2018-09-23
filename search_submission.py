@@ -335,17 +335,18 @@ def a_star(graph, start, goal, heuristic=euclidean_dist_heuristic):
 ###################################################################################
 
 class ExplorableAStarDirection:
-	def __init__(self, graph, seed, goal, heuristic):
+	def __init__(self, graph, seed, goal, heuristic, heuristic_goal=None):
 		self.graph = graph
 		self.goal = goal
 		self.heuristic = heuristic
+		self.heuristic_goal = heuristic_goal if heuristic_goal is not None else goal
 		self.explored = set()           # Vertices at the end of a path from the seed that have been expanded
 		self.frontier = PriorityQueue() # Vertices at the end of a path from the seed to be expanded
 		self.best_cost_to_node = {}     # Best cost from the seed to the node (old paths will be replaced)
 		self.frontier_ids = {}          # A list of frontier ids with the key as the last node on the path
 
 		path_cost = 0  # Cost/weight of path
-		path_f = path_cost + heuristic(graph, seed, seed)  # TODO determine a good heuristic estimate and fix parameters
+		path_f = path_cost + heuristic(graph, seed, heuristic_goal)
 		path = [seed]
 		id_ = self.frontier.append((path_f, path))
 
@@ -383,7 +384,7 @@ class ExplorableAStarDirection:
 			return
 
 		# Adding to the frontier
-		f_to_front = cost_to_front + self.heuristic(self.graph, node, self.goal)
+		f_to_front = cost_to_front + self.heuristic(self.graph, node, self.heuristic_goal)
 		path_to_front = list(path)
 		path_to_front.append(node)
 		id_ = self.frontier.append((f_to_front, path_to_front))
@@ -447,7 +448,7 @@ class ExplorableAStarDirection:
 
 		path_f, _, path = self._fpop()
 		popped = path[-1]
-		path_cost = path_f - self.heuristic(self.graph, popped, self.goal)  # Get back the actual cost
+		path_cost = path_f - self.heuristic(self.graph, popped, self.heuristic_goal)  # Get back the actual cost
 		# if path_cost >= upper_bound:
 		# 	print("No shorter path can be found than the existing shortest path. Returning")
 		# 	terminate = True
@@ -516,7 +517,7 @@ class ExplorableAStarDirection:
 				for id_ in other_dir.frontier_ids[node]['ids']:
 					path_f, _, path = other_dir.frontier.find(id_)
 					popped = path[-1]
-					path_cost = path_f - other_dir.heuristic(other_dir.graph, popped, other_dir.goal)  # Get back the actual cost
+					path_cost = path_f - other_dir.heuristic(other_dir.graph, popped, other_dir.heuristic_goal)  # Get back the actual cost
 					combined_cost, combined_path = other_dir._combine_path(path, path_cost, self)
 					print("Combined path {} with cost {}".format(combined_path, combined_cost))
 
@@ -527,7 +528,9 @@ class ExplorableAStarDirection:
 
 
 def bidir_astar_heuristic(graph, v, goal):
-	return 0
+	v_xy = np.array(graph.node[v]['pos'])
+	goal_xy = np.array(graph.node[goal]['pos'])
+	return np.linalg.norm(v_xy - goal_xy)
 
 
 def bidirectional_ucs(graph, start, goal):
@@ -570,7 +573,7 @@ def bidirectional_ucs(graph, start, goal):
 
 
 def bidirectional_a_star(graph, start, goal,
-						 heuristic=euclidean_dist_heuristic):
+						 heuristic=bidir_astar_heuristic):
 	"""
 	Exercise 2: Bidirectional A*.
 
@@ -589,8 +592,8 @@ def bidirectional_a_star(graph, start, goal,
 	if start == goal: return []
 	path = None
 
-	from_start = ExplorableAStarDirection(graph, start, goal, heuristic)
-	from_goal = ExplorableAStarDirection(graph, goal, goal, heuristic)
+	from_start = ExplorableAStarDirection(graph, start, goal, heuristic, goal)
+	from_goal = ExplorableAStarDirection(graph, goal, goal, heuristic, start)
 
 	n = 0
 	upper_bound = float("inf")
