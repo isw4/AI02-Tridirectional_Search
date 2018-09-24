@@ -9,7 +9,7 @@ import networkx
 from explorable_graph import ExplorableGraph
 from search_submission import PriorityQueue, a_star, bidirectional_a_star, \
 	bidirectional_ucs, breadth_first_search, uniform_cost_search, null_heuristic
-from search_submission import three_bidirectional_search, tridirectional_upgraded, custom_heuristic
+from search_submission import tridirectional_search, three_bidirectional_search, tridirectional_upgraded, custom_heuristic
 from visualize_graph import plot_search
 
 
@@ -102,64 +102,64 @@ class TestBasicSearch(unittest.TestCase):
 		romania = pickle.load(open('romania_graph.pickle', 'rb'))   # romania is a networkx.Graph object
 		self.romania = ExplorableGraph(romania)
 		self.romania.reset_search()
-#
-# 	def test_bfs(self):
-# 		"""Test and visualize breadth-first search"""
-# 		start = 'a'
-# 		goal = 'u'
-#
-# 		node_positions = {n: self.romania.node[n]['pos'] for n in
-# 						  self.romania.node.keys()}
-#
-# 		self.romania.reset_search()
-# 		path = breadth_first_search(self.romania, start, goal)
-#
-# 		self.draw_graph(self.romania, node_positions=node_positions,
-# 						start=start, goal=goal, path=path)
-#
-# 		truth = ['a', 's', 'f', 'b', 'u']
-# 		self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
-# 		for i in range(0, len(truth)):
-# 			self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
-#
-# 	def test_bfs_empty_path(self):
-# 		start = "a"
-# 		goal = "a"
-# 		path = breadth_first_search(self.romania, start, goal)
-# 		self.assertEqual(path, [])
-#
-# 	def test_ucs(self):
-# 		"""Test and visualize uniform-cost search"""
-# 		start = 'a'
-# 		goal = 'u'
-#
-# 		node_positions = {n: self.romania.node[n]['pos'] for n in
-# 						  self.romania.node.keys()}
-#
-# 		self.romania.reset_search()
-# 		path = uniform_cost_search(self.romania, start, goal)
-#
-# 		self.draw_graph(self.romania, node_positions=node_positions,
-# 						start=start, goal=goal, path=path)
-#
-# 		truth = ['a', 's', 'r', 'p', 'b', 'u']
-# 		self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
-# 		for i in range(0, len(truth)):
-# 			self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
-#
-	def test_a_star(self):
-		"""Test and visualize A* search"""
-		start = 'z'
-		goal = 'u'
+	#
+	# def test_bfs(self):
+	# 	"""Test and visualize breadth-first search"""
+	# 	start = 'a'
+	# 	goal = 'u'
+	#
+	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
+	# 					  self.romania.node.keys()}
+	#
+	# 	self.romania.reset_search()
+	# 	path = breadth_first_search(self.romania, start, goal)
+	#
+	# 	self.draw_graph(self.romania, node_positions=node_positions,
+	# 					start=start, goal=goal, path=path)
+	#
+	# 	truth = ['a', 's', 'f', 'b', 'u']
+	# 	self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
+	# 	for i in range(0, len(truth)):
+	# 		self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
+	#
+	# def test_bfs_empty_path(self):
+	# 	start = "a"
+	# 	goal = "a"
+	# 	path = breadth_first_search(self.romania, start, goal)
+	# 	self.assertEqual(path, [])
+	#
+	# def test_ucs(self):
+	# 	"""Test and visualize uniform-cost search"""
+	# 	start = 'a'
+	# 	goal = 'u'
+	#
+	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
+	# 					  self.romania.node.keys()}
+	#
+	# 	self.romania.reset_search()
+	# 	path = uniform_cost_search(self.romania, start, goal)
+	#
+	# 	self.draw_graph(self.romania, node_positions=node_positions,
+	# 					start=start, goal=goal, path=path)
+	#
+	# 	truth = ['a', 's', 'r', 'p', 'b', 'u']
+	# 	self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
+	# 	for i in range(0, len(truth)):
+	# 		self.assertEqual(truth[i], path[i], "The '" + path[i] + "' node along the path is not correct")
 
-		node_positions = {n: self.romania.node[n]['pos'] for n in
-						  self.romania.node.keys()}
-
-		self.romania.reset_search()
-		path = a_star(self.romania, start, goal)
-
-		self.draw_graph(self.romania, node_positions=node_positions,
-						start=start, goal=goal, path=path, title="A* from "+start+" to "+goal)
+	# def test_a_star(self):
+	# 	"""Test and visualize A* search"""
+	# 	start = 'z'
+	# 	goal = 'u'
+	#
+	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
+	# 					  self.romania.node.keys()}
+	#
+	# 	self.romania.reset_search()
+	# 	path = a_star(self.romania, start, goal)
+	#
+	# 	self.draw_graph(self.romania, node_positions=node_positions,
+	# 					start=start, goal=goal, path=path, title="A* from "+start+" to "+goal)
 
 		# truth = ['a', 's', 'r', 'p', 'b', 'u']
 		# self.assertEqual(len(truth), len(path), "The length of the path returned is not correct")
@@ -231,20 +231,20 @@ class TestBidirectionalSearch(unittest.TestCase):
 	#
 	# 	self.draw_graph(self.romania, node_positions=node_positions,
 	# 					start=start, goal=goal, path=path, title="Bi UCS from "+start+" to "+goal)
-
-	def test_romania_astar(self):
-		"""Test and visualize uniform-cost search"""
-		start = 'z'
-		goal = 'u'
-
-		node_positions = {n: self.romania.node[n]['pos'] for n in
-						  self.romania.node.keys()}
-
-		self.romania.reset_search()
-		path = bidirectional_a_star(self.romania, start, goal)
-
-		self.draw_graph(self.romania, node_positions=node_positions,
-						start=start, goal=goal, path=path, title="Bi A* from "+start+" to "+goal)
+	#
+	# def test_romania_astar(self):
+	# 	"""Test and visualize uniform-cost search"""
+	# 	start = 'm'
+	# 	goal = 'u'
+	#
+	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
+	# 					  self.romania.node.keys()}
+	#
+	# 	self.romania.reset_search()
+	# 	path = bidirectional_a_star(self.romania, start, goal)
+	#
+	# 	self.draw_graph(self.romania, node_positions=node_positions,
+	# 					start=start, goal=goal, path=path, title="Bi A* from "+start+" to "+goal)
 
 	# def test_bidirectional_ucs(self):
 	# 	"""Test and generate GeoJSON for bidirectional UCS search"""
@@ -292,6 +292,104 @@ class TestBidirectionalSearch(unittest.TestCase):
 		if goal:
 			networkx.draw_networkx_nodes(graph, node_positions,
 										 nodelist=[goal], node_color='y')
+
+		if title is not None: plt.title(title)
+		plt.plot()
+		plt.show()
+
+
+class TestTridirectionalSearch(unittest.TestCase):
+	"""Test the bidirectional search algorithms: UCS, A*"""
+
+	def setUp(self):
+		"""Load Atlanta map data"""
+		# atlanta = pickle.load(open('atlanta_osm.pickle', 'rb'))
+		# self.atlanta = ExplorableGraph(atlanta)
+		# self.atlanta.reset_search()
+
+		"""Romania map data from Russell and Norvig, Chapter 3."""
+		romania = pickle.load(open('romania_graph.pickle', 'rb'))
+		self.romania = ExplorableGraph(romania)
+		self.romania.reset_search()
+
+	def test_romania_ucs(self):
+		"""Test and visualize uniform-cost search"""
+		goals = ['a', 'c', 'd']
+
+		node_positions = {n: self.romania.node[n]['pos'] for n in
+						  self.romania.node.keys()}
+
+		self.romania.reset_search()
+		path = tridirectional_search(self.romania, goals)
+
+		print("Final path: {}".format(path))
+		self.draw_graph(self.romania, node_positions=node_positions,
+		                goals=goals, path=path,
+		                title="Tri A* between " + goals[0] + ", " + goals[1] + ", and " + goals[2])
+
+	# def test_romania_astar(self):
+	# 	"""Test and visualize uniform-cost search"""
+	# 	goals = ['a', 'f', 'u']
+	#
+	# 	node_positions = {n: self.romania.node[n]['pos'] for n in
+	# 					  self.romania.node.keys()}
+	#
+	# 	self.romania.reset_search()
+	# 	path = bidirectional_a_star(self.romania, goals[0], goals[1])
+	#
+	# 	self.draw_graph(self.romania, node_positions=node_positions,
+	# 					goals=goals, path=path, title="Tri A* between "+goals[0]+", "+goals[1]+", and "+goals[2])
+
+	# def test_bidirectional_ucs(self):
+	# 	"""Test and generate GeoJSON for bidirectional UCS search"""
+	# 	path = bidirectional_ucs(self.atlanta, '69581003', '69581000')
+	# 	all_explored = self.atlanta.explored_nodes
+	# 	plot_search(self.atlanta, 'atlanta_search_bidir_ucs.json', path,
+	# 				all_explored)
+#
+# 	def test_bidirectional_a_star(self):
+# 		"""Test and generate GeoJSON for bidirectional A* search"""
+# 		path = bidirectional_a_star(self.atlanta, '69581003', '69581000')
+# 		all_explored = self.atlanta.explored_nodes
+# 		plot_search(self.atlanta, 'atlanta_search_bidir_a_star.json', path,
+# 					all_explored)
+
+	@staticmethod
+	def draw_graph(graph, node_positions=None, goals=None,
+				   path=None, title=None):
+		"""Visualize results of graph search"""
+		explored = list(graph.explored_nodes)
+
+		labels = {}
+		for node in graph:
+			labels[node] = node
+
+		if node_positions is None:
+			node_positions = networkx.spring_layout(graph)
+
+		networkx.draw_networkx_nodes(graph, node_positions)
+		networkx.draw_networkx_edges(graph, node_positions, style='dashed')
+		networkx.draw_networkx_labels(graph, node_positions, labels)
+
+		networkx.draw_networkx_nodes(graph, node_positions, nodelist=explored,
+									 node_color='g')
+
+		if path is not None:
+			edges = [(path[i], path[i + 1]) for i in range(0, len(path) - 1)]
+			networkx.draw_networkx_edges(graph, node_positions, edgelist=edges,
+										 edge_color='b')
+
+		if goals[0]:
+			networkx.draw_networkx_nodes(graph, node_positions,
+										 nodelist=[goals[0]], node_color='b')
+
+		if goals[1]:
+			networkx.draw_networkx_nodes(graph, node_positions,
+										 nodelist=[goals[1]], node_color='y')
+
+		if goals[2]:
+			networkx.draw_networkx_nodes(graph, node_positions,
+										 nodelist=[goals[2]], node_color='m')
 
 		if title is not None: plt.title(title)
 		plt.plot()
