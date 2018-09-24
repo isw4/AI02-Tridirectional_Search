@@ -314,7 +314,7 @@ class TestTridirectionalSearch(unittest.TestCase):
 
 	def test_romania_ucs(self):
 		"""Test and visualize uniform-cost search"""
-		goals = ['a', 'c', 'd']
+		goals = ['c', 'b', 'f']
 
 		node_positions = {n: self.romania.node[n]['pos'] for n in
 						  self.romania.node.keys()}
