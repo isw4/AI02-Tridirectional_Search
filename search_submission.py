@@ -11,6 +11,7 @@ import heapq
 import os
 import cPickle as pickle
 import numpy as np
+import itertools
 
 ####################################################################################################################
 #                PRIORITY QUEUE AND HEURISTICS                                                                     #
@@ -571,8 +572,7 @@ def bidirectional_ucs(graph, start, goal):
 	return path
 
 
-def bidirectional_a_star(graph, start, goal,
-						 heuristic=bidir_astar_heuristic):
+def bidirectional_a_star(graph, start, goal, heuristic=bidir_astar_heuristic, return_cost=False):
 	"""
 	Exercise 2: Bidirectional A*.
 
@@ -607,7 +607,11 @@ def bidirectional_a_star(graph, start, goal,
 				cost, path = from_goal.phase2(from_start, temp_cost, temp_path)
 				break
 		n += 1
-	return path
+
+	if return_cost:
+		return cost, path
+	else:
+		return path
 
 
 ####################################################################################################################
@@ -665,7 +669,7 @@ class ExplorableTriSearchDirection:
 	"""Class used for tri-directional UCS"""
 	def __init__(self, graph, seed):
 		self.id = id(self)
-		self.name = seed.upper()
+		self.name = seed
 		self.graph = graph
 		self.origin = seed
 		self.explored = set()               # Vertices at the end of a path from the seed that have been expanded
@@ -823,6 +827,10 @@ class ExplorableTriSearchDirection:
 		return combined_cost, combined_path
 
 	def search_once(self):
+		"""
+		In phase 1, just search in both directions
+		:return:
+		"""
 		combined_cost = None
 		combined_path = None
 		endpoint_id = None
@@ -845,35 +853,11 @@ class ExplorableTriSearchDirection:
 			self.tracker.meet(self, self.goal2)
 			# print("Combined path {} with cost {}".format(combined_path, combined_cost))
 
-		# TODO should i check for expanded nodes that are in explored here? if node off frontier is in explored,
-		# pop another off the frontier
-		# If two directions have already met and the optimal path between the two origins has
-		# been calculated, then there is no need to expand frontiers that has been explored
-		# by the other direction.
-		# if self.tracker.have_met(self, self.goal1) and popped in self.goal1.explored:
-		# 	print("Node has already been expanded by {}. Skipping".format(self.goal1.name))
-		# 	self.add_to_explored(popped)
-		# 	return combined_cost, combined_path, endpoint_id
-		# if self.tracker.have_met(self, self.goal2) and popped in self.goal2.explored:
-		# 	print("Node has already been expanded by {}. Skipping".format(self.goal2.name))
-		# 	self.add_to_explored(popped)
-		# 	return combined_cost, combined_path, endpoint_id
-
 		neighbours_iter = self._expand(popped)
 		for neighbour in neighbours_iter:
 			# Checking my unexplored neighbours (prevents backtracking)
 			if neighbour not in self.explored:
 				# print("Looking at '{}'".format(neighbour.upper()))
-				# # If two directions have already met and the optimal path between the two origins has
-				# # been calculated, then there is no need to expand frontiers that has been explored
-				# # by the other direction.
-				# if self.tracker.have_met(self, self.goal1) and neighbour in self.goal1.explored:
-				# 	print("Node has already been expanded by {}. Skipping".format(self.goal1.name))
-				# 	continue
-				# if self.tracker.have_met(self, self.goal2) and neighbour in self.goal2.explored:
-				# 	print("Node has already been expanded by {}. Skipping".format(self.goal2.name))
-				# 	continue
-
 				self._fadd_and_update(neighbour, path, path_cost)
 				# print("Frontier: {}\nf_ids: {}\nBest: {}".format(self.frontier, self.frontier_ids, self.best_cost_to_node))
 
@@ -913,19 +897,29 @@ class ExplorableTriSearchDirection:
 		return final_cost, final_path
 
 	def phase3(self, cost_found, path_found, other_dir_id):
+		"""
+		In phase 3, a 2nd set of directions have touched. Will
+		1) Check if the 2nd set of touched directions has a smaller possible cost (essentially phase 2)
+		2) Check the remaining untouched directions to see if they could touch (the intersection of their
+		   frontiers. If so, try to find the smallest possible intersection
 
+		:param cost_found: cost of the path between the 2nd set of touching directions (may not be smallest)
+		:param path_found: path between the 2nd set of touching directions
+		:param other_dir_id: the other direction that this direction has touched
+		:return:
+		"""
 		other_dir = self.tracker.get_direction_from_id(other_dir_id)
-		# print("This dir name: {}".format(self.name))
-		# print("Other dir name: {}".format(other_dir.name))
-		# Confirming the cost and path of the directions that just touched
+		# print("The direction from {} touched the direction from {}".format(self.name, other_dir.name))
+		# (Step 1) Confirming the cost and path of the directions that just touched
 		cost1, path1 = self.phase2(cost_found, path_found, other_dir_id)
 
-		# Attempting to see if other frontiers that haven't touched could touch
+		# (Step 2) Attempting to see if other frontiers that haven't touched could touch
 		cost2 = float("inf")
 		path2 = []
-		third_dir = self.tracker.get_third_direction_id(self.id, other_dir_id)
+		third_dir = self.tracker.get_third_direction_id(self.id, other_dir_id)  # Finding the last direction
 		if self.tracker.have_met(third_dir, other_dir):
-			# search the frontiers of third and self
+			# If the third and other directions have met, it means that I haven't met the third direction.
+			# Try to find overlapping regions in my frontier and the third frontier
 			# print("self front: {}, explored: {}".format(self.frontier, self.explored))
 			# print("third dir front: {}, explored: {}".format(third_dir.frontier, third_dir.explored))
 
@@ -937,23 +931,19 @@ class ExplorableTriSearchDirection:
 
 			while len(nodes_to_search) != 0:
 				node = nodes_to_search.pop()
-
 				# If in both frontiers, that means that they both have a best cost to node already
 				self_best_path = self.best_cost_to_node[node]['path']
 				self_best_cost = self.best_cost_to_node[node]['cost']
 				combined_cost, combined_path = self._combine_path(self_best_path, self_best_cost, third_dir)
-				# print(combined_cost)
-				# print(combined_path)
-
 				if combined_cost < cost2:
 					cost2 = combined_cost
 					path2 = combined_path
-
 		else: # self has met third dir before this
-			# search the frontiers of third and other dir
+			# The third and other directions have not met. I just met the other direction. That means that
+			# before this I met the third direction. Try to find overlapping regions in the other and the
+			# third frontier.
 			# print("other dir front: {}, explored: {}".format(other_dir.frontier, other_dir.explored))
 			# print("third dir front: {}, explored: {}".format(third_dir.frontier, third_dir.explored))
-
 			nodes_in_third_frontier = set(third_dir.frontier_ids.keys())
 			nodes_in_other_frontier = set(other_dir.frontier_ids.keys())
 			nodes_to_search = (nodes_in_third_frontier | third_dir.explored) & (nodes_in_other_frontier | other_dir.explored)
@@ -962,22 +952,25 @@ class ExplorableTriSearchDirection:
 
 			while len(nodes_to_search) != 0:
 				node = nodes_to_search.pop()
-
 				# If in both frontiers, that means that they both have a best cost to node already
 				other_dir_best_path = other_dir.best_cost_to_node[node]['path']
 				other_dir_best_cost = other_dir.best_cost_to_node[node]['cost']
 				combined_cost, combined_path = other_dir._combine_path(other_dir_best_path, other_dir_best_cost, third_dir)
-				# print(combined_cost)
-				# print(combined_path)
-
 				if combined_cost < cost2:
 					cost2 = combined_cost
 					path2 = combined_path
 
 		return cost1, path1, cost2, path2
 
+
 	@staticmethod
 	def find_best_two_of_three(costs, paths):
+		"""
+		Finds the lowest 2 costs and returns the corresponding paths
+		:param costs: (length 3 list of float/int) Costs associated with each path
+		:param paths: (length 3 list of char list) Each path
+		:return: 2 char lists with the lowest corresponding costs
+		"""
 		costs = np.array(costs)
 		sorted_ix = np.argsort(costs)
 		return paths[sorted_ix[0]], paths[sorted_ix[1]]
@@ -985,20 +978,26 @@ class ExplorableTriSearchDirection:
 
 	@staticmethod
 	def stitch_paths(path1, path2):
+		"""
+		Stitching two paths together. Must have at least 1 matching set of endpoints
+		:param path1: (list of char) the first connecting path
+		:param path2: (list of char) the second connecting path
+		:return: (list of char) path1 and path2 connected
+		"""
 		full_path = None
-		if path1[0] == path2[0]:
+		if path1[0] == path2[0]:        # eg) ['A', 'b', 'c'], ['A', 'g', 'h']
 			full_path = path1[::-1]
 			second_half = path2[1:]
 			full_path.extend(second_half)
-		elif path1[0] == path2[-1]:
+		elif path1[0] == path2[-1]:     # eg) ['A', 'b', 'c'], ['h', 'g', 'A']
 			full_path = path2
 			second_half = path1[1:]
 			full_path.extend(second_half)
-		elif path1[-1] == path2[0]:
+		elif path1[-1] == path2[0]:     # eg) ['c', 'b', 'A'], ['A', 'g', 'h']
 			full_path = path1
 			second_half = path2[1:]
 			full_path.extend(second_half)
-		elif path1[-1] == path2[-1]:
+		elif path1[-1] == path2[-1]:    # eg) ['c', 'b', 'A'], ['h', 'g', 'A']
 			full_path = path1[:-1]
 			second_half = path2[::-1]
 			full_path.extend(second_half)
@@ -1045,24 +1044,27 @@ def tridirectional_search(graph, goals):
 	"""
 	assert len(goals) == 3, "Must have only 3 goals"
 	if goals[0] == goals[1] == goals [2]: return []
+	# If two of the goals are the same, is bidirectional search
 	if goals[0] == goals[1]: return bidir(graph, goals[0], goals[2])
 	if goals[0] == goals[2]: return bidir(graph, goals[0], goals[1])
 	if goals[1] == goals[2]: return bidir(graph, goals[1], goals[0])
 	full_path = None
 
-	# print("Goals are: {}, {}, {}".format(goals[0], goals[1], goals[2]))
-
+	# Initialize and setup the directions
 	directions = []
 	for i in range(0, 3):
 		directions.append(ExplorableTriSearchDirection(graph, seed=goals[i]))
 	ExplorableTriSearchDirection.setup(directions)
 
+	# Search while there are at least 2 frontiers with nodes in them. If there is no final path by the end,
+	# then that means that the graph is not connected
 	n = 0
 	costs = []
 	paths = []
 	temp_cost, temp_path, endpoint_id = None, None, None
 	front_size = np.array([directions[0].frontier.size(), directions[1].frontier.size(), directions[2].frontier.size()])
 	while np.sum(front_size == 0) < 2:
+		# Search index 0 -> 1 -> 2 -> 0 ...
 		if directions[n % 3].frontier.size() != 0:
 			temp_cost, temp_path, endpoint_id = directions[n % 3].search_once()
 		if temp_cost is not None:
@@ -1070,13 +1072,13 @@ def tridirectional_search(graph, goals):
 				temp_cost, temp_path = directions[n % 3].phase2(temp_cost, temp_path, endpoint_id)
 				costs.append(temp_cost)
 				paths.append(temp_path)
-				temp_cost = None
+				temp_cost = None    # reset temp cost in case a direction is skipped and this block is wrongly executed
 			elif len(paths) == 1:
-				temp_cost1, temp_path1, temp_cost2, temp_path2 = directions[n % 3].phase3(temp_cost, temp_path, endpoint_id)
-				costs.append(temp_cost1)
-				paths.append(temp_path1)
-				costs.append(temp_cost2)
-				paths.append(temp_path2)
+				tc1, tp1, tc2, tp2 = directions[n % 3].phase3(temp_cost, temp_path, endpoint_id)
+				costs.append(tc1)
+				paths.append(tp1)
+				costs.append(tc2)
+				paths.append(tp2)
 				final_paths = ExplorableTriSearchDirection.find_best_two_of_three(costs, paths)
 				break
 		n += 1
@@ -1112,30 +1114,7 @@ def return_your_name():
 	return "Isaac Wong"
 
 
-# Extra Credit: Your best search method for the race
-def custom_search(graph, start, goal, data=None):
-	"""
-	Race!: Implement your best search algorithm here to compete against the
-	other student agents.
-
-	See README.md for exercise description.
-
-	Args:
-		graph (ExplorableGraph): Undirected graph to search.
-		start (str): Key for the start node.
-		goal (str): Key for the end node.
-		data :  Data used in the custom search.
-			Default: None.
-
-	Returns:
-		The best path as a list from the start and goal nodes (including both).
-	"""
-
-	# TODO: finish this function!
-	raise NotImplementedError
-
-
-def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic):
+def three_bidirectional_search(graph, goals, heuristic=null_heuristic):
 	"""
 	Exercise 5: Use this to test out your implementation for Three Bidirectional Searches to help you with the report.
 
@@ -1151,7 +1130,17 @@ def three_bidirectional_search(graph, goals, heuristic=euclidean_dist_heuristic)
 		The best path as a list from one of the goal nodes (including both of
 		the other goal nodes).
 	"""
-	pass
+	comb = itertools.combinations([0, 1, 2], 2)
+	costs = []
+	paths = []
+	for pair in comb:
+		temp_cost, temp_path = bidirectional_a_star(graph, goals[pair[0]], goals[pair[1]], heuristic, True)
+		costs.append(temp_cost)
+		paths.append(temp_path)
+
+	path1, path2 = ExplorableTriSearchDirection.find_best_two_of_three(costs, paths)
+	final_path = ExplorableTriSearchDirection.stitch_paths(path1, path2)
+	return final_path
 
 
 def custom_heuristic(graph, v, goal):
@@ -1194,7 +1183,6 @@ def custom_search(graph, start, goal, data=None):
 
 	# TODO: finish this function!
 	raise NotImplementedError
-
 
 
 def load_data(graph, time_left):
